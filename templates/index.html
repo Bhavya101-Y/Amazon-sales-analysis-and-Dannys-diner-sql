@@ -1,0 +1,1378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Analytics Workspace Dashboard</title>
+    <!-- Outfit Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-primary: #0b0f19;
+            --bg-secondary: rgba(17, 24, 39, 0.7);
+            --bg-card: rgba(30, 41, 59, 0.45);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-blue: #3b82f6;
+            --accent-cyan: #06b6d4;
+            --accent-violet: #8b5cf6;
+            --accent-pink: #ec4899;
+            --accent-green: #10b981;
+            --shadow-glow: 0 0 20px rgba(59, 130, 246, 0.15);
+            --font-family: 'Outfit', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-family);
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            overflow-x: hidden;
+        }
+
+        /* Ambient background glow */
+        .ambient-glow-1 {
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(99, 102, 241, 0) 70%);
+            top: -100px;
+            right: -100px;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .ambient-glow-2 {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(6, 182, 212, 0.1) 0%, rgba(6, 182, 212, 0) 70%);
+            bottom: -150px;
+            left: -150px;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Sidebar styling */
+        .sidebar {
+            width: 280px;
+            background: var(--bg-secondary);
+            backdrop-filter: blur(16px);
+            border-right: 1px solid var(--border-glass);
+            display: flex;
+            flex-direction: column;
+            padding: 2rem 1.5rem;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 3rem;
+        }
+
+        .brand-logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: white;
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
+        }
+
+        .brand-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            background: linear-gradient(to right, #ffffff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-menu {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .nav-item {
+            width: 100%;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.25rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 500;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid transparent;
+        }
+
+        .nav-link i {
+            font-size: 1.15rem;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.03);
+            border-color: rgba(255, 255, 255, 0.03);
+        }
+
+        .nav-link:hover i {
+            transform: scale(1.1);
+        }
+
+        .nav-link.active {
+            color: var(--text-primary);
+            background: rgba(59, 130, 246, 0.15);
+            border-color: rgba(59, 130, 246, 0.2);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .nav-link.active i {
+            color: var(--accent-cyan);
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-glass);
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        /* Main content styling */
+        .main-content {
+            margin-left: 280px;
+            flex-grow: 1;
+            padding: 2.5rem;
+            max-width: 1400px;
+            width: calc(100% - 280px);
+        }
+
+        .header {
+            margin-bottom: 2.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-title h1 {
+            font-size: 2.25rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .header-title p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .badge {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--accent-green);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            padding: 0.35rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .badge::before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-green);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--accent-green);
+        }
+
+        /* Dashboard panels */
+        .panel {
+            display: none;
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        .panel.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Glassmorphism Cards */
+        .card {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-glass);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Overview Tab Layout */
+        .overview-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .welcome-card {
+            grid-column: span 2;
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(15, 23, 42, 0.8) 100%);
+            padding: 2.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-card-content {
+            position: relative;
+            z-index: 2;
+            max-width: 60%;
+        }
+
+        .welcome-card h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .welcome-card p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .welcome-card-art {
+            position: absolute;
+            right: 5%;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 8rem;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-violet));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            opacity: 0.25;
+            pointer-events: none;
+            filter: drop-shadow(0 0 30px rgba(139, 92, 246, 0.3));
+        }
+
+        .project-selection {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .project-card {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 250px;
+            cursor: pointer;
+        }
+
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .project-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .proj-1-icon {
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .proj-2-icon {
+            background: linear-gradient(135deg, var(--accent-violet), var(--accent-pink));
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
+        }
+
+        .project-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .project-desc {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .project-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--accent-cyan);
+        }
+
+        .project-card:hover .project-footer span {
+            text-decoration: underline;
+        }
+
+        /* Metrics grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+
+        .metric-icon-box {
+            width: 50px;
+            height: 50px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.35rem;
+            color: var(--accent-blue);
+            border: 1px solid var(--border-glass);
+        }
+
+        .metric-info h3 {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.25rem;
+        }
+
+        .metric-info p {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* Amazon Sales Dashboard Layout */
+        .amazon-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .chart-card {
+            min-height: 350px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .chart-container {
+            position: relative;
+            flex-grow: 1;
+            height: 250px;
+        }
+
+        .double-chart-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        /* Danny's Diner SQL Sandbox Layout */
+        .sql-grid {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 1.5rem;
+        }
+
+        .question-list-card {
+            display: flex;
+            flex-direction: column;
+            max-height: 650px;
+            overflow-y: auto;
+        }
+
+        .question-list-header {
+            margin-bottom: 1rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+            border-bottom: 1px solid var(--border-glass);
+            padding-bottom: 0.75rem;
+        }
+
+        .question-items {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .question-item {
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-glass);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+        }
+
+        .question-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .question-item.active {
+            background: rgba(139, 92, 246, 0.1);
+            border-color: rgba(139, 92, 246, 0.3);
+        }
+
+        .question-item-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: var(--text-primary);
+        }
+
+        .question-item-desc {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .sql-editor-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .sql-editor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sql-textarea-wrapper {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border-glass);
+            background: #0d1117;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+        }
+
+        .sql-textarea {
+            width: 100%;
+            height: 180px;
+            background: transparent;
+            border: none;
+            color: #58a6ff;
+            font-family: 'Consolas', 'Courier New', Courier, monospace;
+            font-size: 1rem;
+            padding: 1.25rem;
+            resize: vertical;
+            outline: none;
+            line-height: 1.5;
+        }
+
+        .sql-editor-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-violet), var(--accent-pink));
+            color: white;
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+            border: 1px solid var(--border-glass);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .results-container {
+            margin-top: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            max-height: 350px;
+        }
+
+        .results-header {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .results-table-wrapper {
+            overflow-x: auto;
+            max-height: 280px;
+            border-radius: 8px;
+            border: 1px solid var(--border-glass);
+            background: rgba(15, 23, 42, 0.3);
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        .results-table th {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.75rem 1rem;
+            font-weight: 600;
+            color: var(--accent-cyan);
+            border-bottom: 1px solid var(--border-glass);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .results-table td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            color: var(--text-primary);
+        }
+
+        .results-table tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .results-empty {
+            padding: 2rem;
+            text-align: center;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .error-box {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.25);
+            color: #f87171;
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        /* Notebook panel styling */
+        .notebook-panel-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            height: calc(100vh - 180px);
+        }
+
+        .notebook-selector {
+            display: flex;
+            gap: 1rem;
+            border-bottom: 1px solid var(--border-glass);
+            padding-bottom: 0.5rem;
+        }
+
+        .notebook-tab {
+            padding: 0.5rem 1.25rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-weight: 500;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .notebook-tab:hover {
+            color: var(--text-primary);
+        }
+
+        .notebook-tab.active {
+            color: var(--accent-cyan);
+            border-color: var(--accent-cyan);
+        }
+
+        .notebook-frame-wrapper {
+            flex-grow: 1;
+            border-radius: 12px;
+            border: 1px solid var(--border-glass);
+            overflow: hidden;
+            background: white; /* Jupyter output usually renders best on white bg unless customized */
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
+            height: 100%;
+        }
+
+        .notebook-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* Database Schema Viewer inside SQL sandbox */
+        .schema-viewer {
+            margin-top: 1rem;
+            font-size: 0.8rem;
+        }
+
+        .schema-table {
+            margin-bottom: 0.75rem;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 0.5rem 0.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .schema-table-name {
+            font-weight: 600;
+            color: var(--accent-violet);
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .schema-cols {
+            color: var(--text-secondary);
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="ambient-glow-1"></div>
+    <div class="ambient-glow-2"></div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="brand">
+            <div class="brand-logo"><i class="fa-solid fa-chart-line"></i></div>
+            <div class="brand-name">Analytics Hub</div>
+        </div>
+
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="#" class="nav-link active" onclick="switchTab('overview', this)">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Overview</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" onclick="switchTab('amazon', this); loadAmazonSales();">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>Amazon Sales</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" onclick="switchTab('dannys-diner', this); loadDannysDiner();">
+                    <i class="fa-solid fa-database"></i>
+                    <span>Danny's Diner SQL</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" onclick="switchTab('notebooks', this)">
+                    <i class="fa-solid fa-book-open"></i>
+                    <span>Jupyter Notebooks</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <p>Data Analytics Workspace</p>
+            <p style="font-size: 0.7rem; margin-top: 0.25rem; opacity: 0.6;">v1.0.0 • Local Run Mode</p>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        <div class="header">
+            <div class="header-title">
+                <h1 id="page-title">Overview Dashboard</h1>
+                <p id="page-subtitle">Welcome to your local interactive workspace portal</p>
+            </div>
+            <div class="badge">Running Sandbox</div>
+        </div>
+
+        <!-- PANEL: OVERVIEW -->
+        <div id="panel-overview" class="panel active">
+            <div class="overview-grid">
+                <div class="card welcome-card">
+                    <div class="welcome-card-content">
+                        <h2>Data Analytics Projects</h2>
+                        <p>Explore end-to-end data projects analyzing commercial Amazon Sales and Danny's Diner customer behaviour using Python Pandas, SQL, and Matplotlib visualizations.</p>
+                    </div>
+                    <div class="welcome-card-art">
+                        <i class="fa-solid fa-database"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="project-selection">
+                <div class="card project-card" onclick="document.querySelectorAll('.nav-link')[1].click();">
+                    <div class="project-header">
+                        <div class="project-icon proj-1-icon">
+                            <i class="fa-solid fa-cart-shopping"></i>
+                        </div>
+                        <i class="fa-solid fa-arrow-up-right-from-square" style="color: var(--text-secondary)"></i>
+                    </div>
+                    <div>
+                        <h3 class="project-title">Amazon Sales Analysis</h3>
+                        <p class="project-desc">Interactive dashboard visualizing total profits, order volume, regional product distributions, and margins across 100+ global orders.</p>
+                    </div>
+                    <div class="project-footer">
+                        <span>Explore Dashboard</span>
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </div>
+                </div>
+
+                <div class="card project-card" onclick="document.querySelectorAll('.nav-link')[2].click();">
+                    <div class="project-header">
+                        <div class="project-icon proj-2-icon">
+                            <i class="fa-solid fa-utensils"></i>
+                        </div>
+                        <i class="fa-solid fa-arrow-up-right-from-square" style="color: var(--text-secondary)"></i>
+                    </div>
+                    <div>
+                        <h3 class="project-title">Danny's Diner (SQL Case Study)</h3>
+                        <p class="project-desc">Live SQLite database playground to solve 10 customer loyalty and spending questions using CTEs, window functions, and aggregations.</p>
+                    </div>
+                    <div class="project-footer">
+                        <span>Launch SQL Console</span>
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PANEL: AMAZON SALES -->
+        <div id="panel-amazon" class="panel">
+            <div class="metrics-grid">
+                <div class="card metric-card">
+                    <div class="metric-icon-box" style="color: var(--accent-cyan)">
+                        <i class="fa-solid fa-money-bill-trend-up"></i>
+                    </div>
+                    <div class="metric-info">
+                        <h3>Total Revenue</h3>
+                        <p id="m-revenue">$0.00</p>
+                    </div>
+                </div>
+                <div class="card metric-card">
+                    <div class="metric-icon-box" style="color: var(--accent-green)">
+                        <i class="fa-solid fa-coins"></i>
+                    </div>
+                    <div class="metric-info">
+                        <h3>Total Profit</h3>
+                        <p id="m-profit">$0.00</p>
+                    </div>
+                </div>
+                <div class="card metric-card">
+                    <div class="metric-icon-box" style="color: var(--accent-violet)">
+                        <i class="fa-solid fa-percent"></i>
+                    </div>
+                    <div class="metric-info">
+                        <h3>Profit Margin</h3>
+                        <p id="m-margin">0.00%</p>
+                    </div>
+                </div>
+                <div class="card metric-card">
+                    <div class="metric-icon-box" style="color: var(--accent-pink)">
+                        <i class="fa-solid fa-box-archive"></i>
+                    </div>
+                    <div class="metric-info">
+                        <h3>Units Sold</h3>
+                        <p id="m-units">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="amazon-grid">
+                <div class="card chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Revenue & Profit Monthly Trend</h3>
+                        <i class="fa-solid fa-ellipsis-vertical" style="color: var(--text-secondary)"></i>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Revenue by Region</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="regionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="double-chart-grid">
+                <div class="card chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Revenue by Item Type</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="itemChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Sales Channel Mix</h3>
+                    </div>
+                    <div class="chart-container" style="max-height: 250px;">
+                        <canvas id="channelChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PANEL: DANNY'S DINER SQL PLAYGROUND -->
+        <div id="panel-dannys-diner" class="panel">
+            <div class="sql-grid">
+                <!-- Left: Question Selector & Database Schema -->
+                <div class="card question-list-card">
+                    <div class="question-list-header">
+                        Case Study Questions
+                    </div>
+                    <div class="question-items" id="question-list">
+                        <!-- Loaded dynamically -->
+                    </div>
+                    
+                    <div class="question-list-header" style="margin-top: 1.5rem; border-top: 1px solid var(--border-glass); padding-top: 1rem;">
+                        Database Schema
+                    </div>
+                    <div class="schema-viewer">
+                        <div class="schema-table">
+                            <div class="schema-table-name"><i class="fa-solid fa-table"></i> sales</div>
+                            <div class="schema-cols">customer_id(str), order_date(date), product_id(int)</div>
+                        </div>
+                        <div class="schema-table">
+                            <div class="schema-table-name"><i class="fa-solid fa-table"></i> menu</div>
+                            <div class="schema-cols">product_id(int), product_name(str), price(int)</div>
+                        </div>
+                        <div class="schema-table">
+                            <div class="schema-table-name"><i class="fa-solid fa-table"></i> members</div>
+                            <div class="schema-cols">customer_id(str), join_date(date)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: SQL Editor and Live Results -->
+                <div class="sql-editor-container">
+                    <div class="card" style="padding: 1.5rem;">
+                        <div class="sql-editor-header">
+                            <h3 id="current-question-title" style="font-size: 1.1rem; font-weight: 600;">Custom SQL Query</h3>
+                            <span id="current-question-desc" style="font-size: 0.85rem; color: var(--text-secondary)">Run freeform SQL queries on Danny's Diner database</span>
+                        </div>
+                        
+                        <div class="sql-textarea-wrapper" style="margin-top: 1rem;">
+                            <textarea id="sql-code-editor" class="sql-textarea" spellcheck="false" placeholder="SELECT * FROM sales;"></textarea>
+                        </div>
+
+                        <div class="sql-editor-actions">
+                            <button class="btn btn-secondary" onclick="resetSQLQuery()"><i class="fa-solid fa-arrow-rotate-left"></i> Reset</button>
+                            <button class="btn btn-primary" onclick="runSQLQuery()"><i class="fa-solid fa-play"></i> Run Query</button>
+                        </div>
+                    </div>
+
+                    <div class="card" style="padding: 1.5rem; flex-grow: 1;">
+                        <div class="results-header">
+                            <span>Query Results</span>
+                            <span id="results-count" style="font-size: 0.8rem; color: var(--text-secondary);"></span>
+                        </div>
+                        
+                        <div class="error-box" id="query-error">Error message placeholder</div>
+
+                        <div class="results-table-wrapper">
+                            <table class="results-table" id="query-results-table">
+                                <thead>
+                                    <tr id="table-headers">
+                                        <!-- Column headers loaded dynamically -->
+                                    </tr>
+                                </thead>
+                                <tbody id="table-body">
+                                    <tr>
+                                        <td colspan="100%" class="results-empty">No query executed yet. Select a question or write SQL and click "Run Query".</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PANEL: NOTEBOOKS -->
+        <div id="panel-notebooks" class="panel">
+            <div class="notebook-panel-container">
+                <div class="notebook-selector">
+                    <div class="notebook-tab active" onclick="loadNotebook('amazon', this)">Amazon Sales Analysis Notebook</div>
+                    <div class="notebook-tab" onclick="loadNotebook('dannys_diner', this)">Danny's Diner SQL Challenge Notebook</div>
+                </div>
+
+                <div class="notebook-frame-wrapper">
+                    <iframe id="notebook-iframe" class="notebook-iframe" src="/notebooks/amazon"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables for Chart.js instances to avoid overlay bugs
+        let trendChartObj = null;
+        let regionChartObj = null;
+        let itemChartObj = null;
+        let channelChartObj = null;
+        let questionsCache = [];
+        let selectedQuestionIndex = -1;
+
+        function formatCurrency(val) {
+            return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(val);
+        }
+
+        // Tab Switcher
+        function switchTab(tabId, el) {
+            // Update active link styling
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            el.classList.add('active');
+
+            // Hide/Show correct panel
+            document.querySelectorAll('.panel').forEach(panel => {
+                panel.classList.remove('active');
+            });
+            document.getElementById(`panel-${tabId}`).classList.add('active');
+
+            // Update page headers
+            const pageTitle = document.getElementById('page-title');
+            const pageSubtitle = document.getElementById('page-subtitle');
+
+            if (tabId === 'overview') {
+                pageTitle.innerText = "Overview Dashboard";
+                pageSubtitle.innerText = "Welcome to your local interactive workspace portal";
+            } else if (tabId === 'amazon') {
+                pageTitle.innerText = "Amazon Sales Analysis";
+                pageSubtitle.innerText = "Interactive performance metrics and global sales distributions";
+            } else if (tabId === 'dannys-diner') {
+                pageTitle.innerText = "Danny's Diner SQL Challenge";
+                pageSubtitle.innerText = "Interactive database explorer for consumer loyalty and patterns";
+            } else if (tabId === 'notebooks') {
+                pageTitle.innerText = "Python Jupyter Notebooks";
+                pageSubtitle.innerText = "View fully-documented notebook exports with raw codes and diagrams";
+            }
+        }
+
+        // Load Notebooks
+        function loadNotebook(type, el) {
+            document.querySelectorAll('.notebook-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            el.classList.add('active');
+
+            const iframe = document.getElementById('notebook-iframe');
+            if (type === 'amazon') {
+                iframe.src = '/notebooks/amazon';
+            } else {
+                iframe.src = '/notebooks/dannys_diner';
+            }
+        }
+
+        // Load Amazon Data
+        function loadAmazonSales() {
+            fetch('/api/amazon_sales')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.error) {
+                        alert("Error loading Amazon data: " + data.error);
+                        return;
+                    }
+
+                    // Populate Metrics
+                    document.getElementById('m-revenue').innerText = formatCurrency(data.metrics.total_revenue);
+                    document.getElementById('m-profit').innerText = formatCurrency(data.metrics.total_profit);
+                    document.getElementById('m-margin').innerText = data.metrics.profit_margin.toFixed(2) + "%";
+                    document.getElementById('m-units').innerText = data.metrics.units_sold.toLocaleString();
+
+                    // Render Charts
+                    renderCharts(data);
+                })
+                .catch(err => {
+                    console.error("Fetch error:", err);
+                });
+        }
+
+        // Render charts helper
+        function renderCharts(data) {
+            Chart.defaults.color = '#94a3b8';
+            Chart.defaults.font.family = "'Outfit', sans-serif";
+
+            // 1. Monthly Revenue & Profit Trend
+            const trendCtx = document.getElementById('trendChart').getContext('2d');
+            if (trendChartObj) trendChartObj.destroy();
+            
+            const months = data.monthly_trend.map(d => d.month);
+            const revenues = data.monthly_trend.map(d => d.revenue);
+            const profits = data.monthly_trend.map(d => d.profit);
+
+            trendChartObj = new Chart(trendCtx, {
+                type: 'line',
+                data: {
+                    labels: months,
+                    datasets: [
+                        {
+                            label: 'Revenue',
+                            data: revenues,
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.3
+                        },
+                        {
+                            label: 'Profit',
+                            data: profits,
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top' }
+                    },
+                    scales: {
+                        y: { grid: { color: 'rgba(255,255,255,0.05)' } },
+                        x: { grid: { color: 'rgba(255,255,255,0.05)' } }
+                    }
+                }
+            });
+
+            // 2. Revenue by Region
+            const regionCtx = document.getElementById('regionChart').getContext('2d');
+            if (regionChartObj) regionChartObj.destroy();
+
+            const regions = data.regions.map(r => r.region);
+            const regionRevenues = data.regions.map(r => r.revenue);
+
+            regionChartObj = new Chart(regionCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: regions,
+                    datasets: [{
+                        data: regionRevenues,
+                        backgroundColor: [
+                            '#3b82f6', '#06b6d4', '#8b5cf6', '#ec4899', '#10b981', '#f59e0b', '#ef4444'
+                        ],
+                        borderWidth: 1,
+                        borderColor: '#0b0f19'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right', labels: { boxWidth: 12 } }
+                    }
+                }
+            });
+
+            // 3. Revenue by Item Type
+            const itemCtx = document.getElementById('itemChart').getContext('2d');
+            if (itemChartObj) itemChartObj.destroy();
+
+            const items = data.item_types.map(i => i.item_type);
+            const itemRevenues = data.item_types.map(i => i.revenue);
+
+            itemChartObj = new Chart(itemCtx, {
+                type: 'bar',
+                data: {
+                    labels: items,
+                    datasets: [{
+                        label: 'Total Revenue',
+                        data: itemRevenues,
+                        backgroundColor: 'rgba(139, 92, 246, 0.75)',
+                        borderColor: '#8b5cf6',
+                        borderWidth: 1,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { grid: { color: 'rgba(255,255,255,0.05)' } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+
+            // 4. Sales Channel Mix
+            const channelCtx = document.getElementById('channelChart').getContext('2d');
+            if (channelChartObj) channelChartObj.destroy();
+
+            const channels = data.channels.map(c => c.channel);
+            const channelRevenues = data.channels.map(c => c.revenue);
+
+            channelChartObj = new Chart(channelCtx, {
+                type: 'pie',
+                data: {
+                    labels: channels,
+                    datasets: [{
+                        data: channelRevenues,
+                        backgroundColor: ['#ec4899', '#3b82f6'],
+                        borderWidth: 1,
+                        borderColor: '#0b0f19'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+        }
+
+        // Load Danny's Diner Questions
+        function loadDannysDiner() {
+            if (questionsCache.length > 0) return; // avoid duplicate fetchs
+            
+            fetch('/api/dannys_diner/questions')
+                .then(res => res.json())
+                .then(data => {
+                    questionsCache = data;
+                    const listContainer = document.getElementById('question-list');
+                    listContainer.innerHTML = '';
+                    
+                    data.forEach((q, idx) => {
+                        const item = document.createElement('button');
+                        item.className = 'question-item';
+                        item.onclick = () => selectQuestion(idx);
+                        item.innerHTML = `
+                            <div class="question-item-title">${q.title}</div>
+                            <div class="question-item-desc">${q.desc}</div>
+                        `;
+                        listContainer.appendChild(item);
+                    });
+
+                    // Auto select first question
+                    if(data.length > 0) {
+                        selectQuestion(0);
+                    }
+                });
+        }
+
+        // Select SQL Question
+        function selectQuestion(idx) {
+            selectedQuestionIndex = idx;
+            const q = questionsCache[idx];
+
+            // Update selected class
+            const items = document.querySelectorAll('.question-item');
+            items.forEach((item, i) => {
+                if (i === idx) item.classList.add('active');
+                else item.classList.remove('active');
+            });
+
+            // Update title & description
+            document.getElementById('current-question-title').innerText = q.title;
+            document.getElementById('current-question-desc').innerText = q.desc;
+
+            // Load SQL code into textarea
+            document.getElementById('sql-code-editor').value = q.sql;
+        }
+
+        // Reset Query to default
+        function resetSQLQuery() {
+            if (selectedQuestionIndex !== -1) {
+                selectQuestion(selectedQuestionIndex);
+            } else {
+                document.getElementById('sql-code-editor').value = '';
+            }
+        }
+
+        // Run SQL Query
+        function runSQLQuery() {
+            const queryText = document.getElementById('sql-code-editor').value;
+            const errorBox = document.getElementById('query-error');
+            const tableHeaders = document.getElementById('table-headers');
+            const tableBody = document.getElementById('table-body');
+            const resultsCount = document.getElementById('results-count');
+
+            errorBox.style.display = 'none';
+            
+            fetch('/api/dannys_diner/query', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query: queryText })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    errorBox.innerText = "SQL Error: " + data.error;
+                    errorBox.style.display = 'block';
+                    return;
+                }
+
+                // Render Results Table
+                tableHeaders.innerHTML = '';
+                tableBody.innerHTML = '';
+
+                if (data.columns.length === 0) {
+                    tableBody.innerHTML = `
+                        <tr>
+                            <td colspan="100%" class="results-empty">Query executed successfully, but returned no columns or rows.</td>
+                        </tr>
+                    `;
+                    resultsCount.innerText = "0 rows returned";
+                    return;
+                }
+
+                // Add columns
+                data.columns.forEach(col => {
+                    const th = document.createElement('th');
+                    th.innerText = col;
+                    tableHeaders.appendChild(th);
+                });
+
+                // Add rows
+                if (data.rows.length === 0) {
+                    tableBody.innerHTML = `
+                        <tr>
+                            <td colspan="${data.columns.length}" class="results-empty">No rows returned.</td>
+                        </tr>
+                    `;
+                    resultsCount.innerText = "0 rows returned";
+                    return;
+                }
+
+                data.rows.forEach(row => {
+                    const tr = document.createElement('tr');
+                    data.columns.forEach(col => {
+                        const td = document.createElement('td');
+                        td.innerText = row[col] !== null ? row[col] : 'NULL';
+                        tr.appendChild(td);
+                    });
+                    tableBody.appendChild(tr);
+                });
+
+                resultsCount.innerText = `${data.rows.length} rows returned`;
+            })
+            .catch(err => {
+                errorBox.innerText = "Execution failed: " + err.message;
+                errorBox.style.display = 'block';
+            });
+        }
+    </script>
+</body>
+</html>
