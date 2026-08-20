@@ -6,27 +6,6 @@ Welcome to the **Data Analytics & SQL Portfolio Portal**! This repository showca
 
 ---
 
-## 🚀 Live Demo & Deployment
-
-You can deploy this interactive application to the cloud for free using either **Render** or **Vercel**!
-
-### Option A: Deploy with Vercel (Recommended)
-1. Push this repository to your **GitHub** account.
-2. Sign up or log in to **[Vercel.com](https://vercel.com/)**.
-3. Click **Add New** and select **Project**.
-4. Import your GitHub repository.
-5. Vercel will automatically detect `vercel.json`, build the serverless Python environment, install your `requirements.txt`, and deploy the app.
-6. You will get a fast, production-ready URL (e.g., `https://your-project.vercel.app`) to share with recruiters!
-
-### Option B: Deploy with Render
-1. Push this repository to your **GitHub** account.
-2. Sign up or log in to **[Render.com](https://render.com/)**.
-3. Click **New +** and select **Blueprint**.
-4. Connect this GitHub repository. Render will read the `render.yaml` file and deploy the Flask server.
-5. You will get a live URL (e.g., `https://your-project.onrender.com`).
-
----
-
 ## 🌟 Interactive Portal Features
 
 ### 1. 🛒 Amazon Sales Analysis Dashboard
