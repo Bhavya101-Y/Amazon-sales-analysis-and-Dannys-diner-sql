@@ -46,6 +46,31 @@ A SQL playground sandbox containing a complete dataset (Sales, Menu, Members tab
 
 ---
 
+## 📈 Key Analytical Insights & Data Findings
+
+### 🛒 1. Amazon Sales Insights (Based on CSV Dataset)
+From our automated aggregation and analysis of the Amazon Sales dataset containing global orders, we found the following key trends:
+- **Outstanding Profitability**: The channel generated **$88,640,049** in revenue, yielding **$29,796,419** in total profit with a strong average profit margin of **33.62%**.
+- **Top Product Categories**: 
+  - **Cosmetics** is the highest revenue generator, contributing **$24,002,280** (27% of total sales).
+  - **Office Supplies** follows with **$16,726,980** in sales.
+- **Geographic Demand**: **Europe** is the dominant region, accounting for **$31,333,305** in sales, followed by **Sub-Saharan Africa** at **$17,833,630**.
+- **Channel Dynamics**: Sales channels are evenly split, with **Offline** generating **$44,471,756** and **Online** generating **$44,168,292**, indicating robust multi-channel operations.
+
+### 🍜 2. Danny's Diner SQL Insights (Based on Case Study Queries)
+Using SQL query optimization, we extracted the following metrics on restaurant loyalty and customer behaviour:
+
+| Customer | Total Spent | Visited Days | Favorite Item | Loyalty Points |
+|:---:|:---:|:---:|:---:|:---:|
+| **A** | $76 | 4 Days | Ramen (3 purchases) | 860 Points |
+| **B** | $74 | 6 Days | Sushi, Curry, Ramen (2 each) | 940 Points |
+| **C** | $36 | 2 Days | Ramen (3 purchases) | 360 Points |
+
+- **Product Popularity**: **Ramen** is the most popular menu item overall, with **8 orders** placed by all customers.
+- **First Membership Order**: Customer **A** purchased **Curry** as their first meal after joining the loyalty program, whereas Customer **B** purchased **Sushi**.
+
+---
+
 ## 🛠️ Tech Stack & Architecture
 
 - **Backend**: Python 3.11, Flask, Pandas, SQLite3 (multi-threaded shared cache)
